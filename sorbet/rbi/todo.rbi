@@ -5,5 +5,5 @@
 # typed: false
 
 module ::Dev::Deps; end
+module SimpleCov::Sorbet::IgnoredRangesTest::Where; end
 module SimpleCov::Sorbet::SourceFileIntegrationTest::Cleanup; end
-module SimpleCov::Sorbet::TypeAliasRangesTest::Where; end

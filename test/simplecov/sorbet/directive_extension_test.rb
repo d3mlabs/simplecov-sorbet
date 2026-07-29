@@ -44,6 +44,27 @@ class SimpleCov::Sorbet::DirectiveExtensionTest < Minitest::Test
     ranges.fetch(:method) == [(6..8)]
   end
 
+  test "appends sig and absurd ranges to every directive category" do
+    Given "source lines with a multi-line sig and a T.absurd send"
+    src_lines = <<~RUBY.lines
+      sig do
+        params(x: Integer).returns(Integer)
+      end
+      def check(x)
+        case x
+        when Integer then x
+        else T.absurd(x)
+        end
+      end
+    RUBY
+
+    When "SimpleCov computes the disabled ranges"
+    ranges = SimpleCov::Directive.disabled_ranges(src_lines)
+
+    Then "both ranges join line, branch, and method alike"
+    ranges == { line: [(1..3), (7..7)], branch: [(1..3), (7..7)], method: [(1..3), (7..7)] }
+  end
+
   test "returns directive ranges untouched when the source has no aliases" do
     Given "alias-free source lines"
     src_lines = ["def plain\n", "  :ok\n", "end\n"]

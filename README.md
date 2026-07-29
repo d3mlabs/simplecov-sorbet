@@ -3,9 +3,11 @@
 
 # SimpleCov::Sorbet
 
-A [SimpleCov](https://github.com/simplecov-ruby/simplecov) extension for [Sorbet](https://sorbet.org) codebases: it skips constructs Sorbet makes runtime-unreachable by design, so they stop reading as coverage misses.
+A [SimpleCov](https://github.com/simplecov-ruby/simplecov) extension for [Sorbet](https://sorbet.org) codebases: it skips type-level Sorbet constructs that coverage should not measure, so they stop reading as coverage misses.
 
-Today that means multi-line `T.type_alias` blocks. sorbet-runtime resolves aliases lazily and collection checks are shallow, so the block body of
+Three constructs are skipped:
+
+- **Multi-line `T.type_alias` blocks.** sorbet-runtime resolves aliases lazily and collection checks are shallow, so the block body of
 
 ```ruby
 ResolvedSegment = T.type_alias do
@@ -17,7 +19,13 @@ ResolvedSegment = T.type_alias do
 end
 ```
 
-never executes — and SimpleCov (and any patch-coverage gate built on it, like Codecov's) reports those lines as uncovered. The usual workarounds are cramming the alias onto one line or sprinkling `# simplecov:disable` comments; both encode a tool-compatibility fact into every file that has an alias. This gem moves that knowledge to the layer that owns it: detection is purely syntactic (a [Prism](https://github.com/ruby/prism)-backed AST pass via [ast_transform](https://github.com/rspockframework/ast-transform)), and the found ranges feed straight into SimpleCov's skip machinery.
+  never executes — and SimpleCov (and any patch-coverage gate built on it, like Codecov's) reports those lines as uncovered.
+
+- **`sig` blocks** (bare or with a receiver such as `T::Sig::WithoutRuntime.sig`). Sigs are type metadata whose correctness `srb tc` owns; coverage should measure behavior. Skipping them sharpens the signal: an untested method reports its *body* as the miss, without sig-line noise — and `T::Sig::WithoutRuntime` sigs, which never evaluate at runtime, stop being permanent false positives. Detection matches any `sig` call with a multi-line block; a non-Sorbet DSL also named `sig` would be over-matched, an accepted risk in a Sorbet codebase.
+
+- **`T.absurd` sends.** Exhaustiveness checks are unreachable by definition when the code is correct — Sorbet statically proves the `else` branch can't be taken — so in healthy code the line is a permanent miss.
+
+The usual workarounds are cramming constructs onto one line or sprinkling `# simplecov:disable` comments; both encode a tool-compatibility fact into every file. This gem moves that knowledge to the layer that owns it: detection is purely syntactic (a [Prism](https://github.com/ruby/prism)-backed AST pass via [ast_transform](https://github.com/rspockframework/ast-transform)), and the found ranges feed straight into SimpleCov's skip machinery.
 
 ## Installation
 
@@ -38,7 +46,13 @@ SimpleCov.start
 
 ## How it works
 
-Requiring `simplecov/sorbet` prepends an extension onto `SimpleCov::Directive.disabled_ranges`, the seam SimpleCov 1.0 consults for `# simplecov:disable` ranges — for both loaded files (`SourceFile`) and tracked-but-unloaded files (`LinesClassifier`). The extension parses each covered file, collects the line range of every `T.type_alias` block (including the `::T` form), and appends those ranges to all three directive categories (`line`, `branch`, `method` — the block body is runtime-unreachable, so anything inside it is skippable). Files the parser rejects contribute no ranges and are otherwise reported untouched.
+Requiring `simplecov/sorbet` prepends an extension onto `SimpleCov::Directive.disabled_ranges`, the seam SimpleCov 1.0 consults for `# simplecov:disable` ranges — for both loaded files (`SourceFile`) and tracked-but-unloaded files (`LinesClassifier`). The extension parses each covered file, collects the line range of every ignored construct (`T.type_alias` blocks including the `::T` form, multi-line `sig` blocks, and `T.absurd` sends), and appends those ranges to all three directive categories (`line`, `branch`, `method` — type-level constructs are not behavior, so anything inside them is skippable). Files the parser rejects contribute no ranges and are otherwise reported untouched.
+
+### What is deliberately not skipped
+
+Regular sig *behavior* is unaffected: sorbet-runtime evaluates a sig block lazily on the method's first call, so before this gem an uncovered sig always accompanied an uncovered method body. Skipping sigs removes the duplicate line, not the signal — the untested body still reports as a miss. One tradeoff to know about: a sig coverage miss on a *tested* method once exposed a real bug (`module_function` copies methods before the sig wrapper installs, silently disabling runtime validation). With sigs skipped, that class of bug is RuboCop's to catch (`Style/ModuleFunction: EnforcedStyle: extend_self`), not coverage's.
+
+Skips apply through SimpleCov's directive machinery, which drives its line classification; if you enable branch coverage, branches inside skipped ranges are covered by the `branch` directive category the extension also populates.
 
 ## Requirements
 

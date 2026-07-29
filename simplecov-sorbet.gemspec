@@ -10,10 +10,10 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jean-Philippe Duchesne"]
   spec.email         = ["jpduchesne89@gmail.com"]
 
-  spec.summary       = "SimpleCov extension that skips runtime-unreachable Sorbet constructs (T.type_alias blocks)."
-  spec.description   = "Multi-line T.type_alias blocks never execute (sorbet-runtime resolves aliases lazily), " \
-    "so SimpleCov reports them as uncovered. This extension detects them syntactically and feeds their line " \
-    "ranges into SimpleCov's skip machinery."
+  spec.summary       = "SimpleCov extension that skips type-level Sorbet constructs (T.type_alias, sig, T.absurd)."
+  spec.description   = "Type-level Sorbet constructs read as coverage misses: multi-line T.type_alias and sig " \
+    "blocks evaluate lazily or never, and T.absurd is unreachable by definition. This extension detects them " \
+    "syntactically and feeds their line ranges into SimpleCov's skip machinery."
   spec.homepage      = "https://github.com/d3mlabs/simplecov-sorbet"
   spec.license       = "MIT"
   spec.files         = %x(git ls-files -z).split("\x0").reject do |f|
