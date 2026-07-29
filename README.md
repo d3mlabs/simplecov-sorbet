@@ -1,3 +1,6 @@
+[![CI](https://github.com/d3mlabs/simplecov-sorbet/actions/workflows/ci.yml/badge.svg)](https://github.com/d3mlabs/simplecov-sorbet/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/d3mlabs/simplecov-sorbet/branch/main/graph/badge.svg)](https://codecov.io/gh/d3mlabs/simplecov-sorbet)
+
 # SimpleCov::Sorbet
 
 A [SimpleCov](https://github.com/simplecov-ruby/simplecov) extension for [Sorbet](https://sorbet.org) codebases: it skips constructs Sorbet makes runtime-unreachable by design, so they stop reading as coverage misses.
