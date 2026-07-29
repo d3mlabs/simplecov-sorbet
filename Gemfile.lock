@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    simplecov-sorbet (0.1.0)
+    simplecov-sorbet (0.2.0)
       ast_transform (~> 3.1)
       simplecov (~> 1.0)
       sorbet-runtime
@@ -179,7 +179,7 @@ CHECKSUMS
   rubydex (0.3.0-x86_64-darwin) sha256=59d20c98b0bf2226f5db5bee14cf57075aa93aa0c3fa0176f496a217691ff7b6
   rubydex (0.3.0-x86_64-linux) sha256=dfe4026591f226b4a1b53f82f86dc14fad2e7c221ee8a5be99a0a46bf2d58b04
   simplecov (1.0.3) sha256=38ef0514f16ae7562f0d0f4df02610071115103d301b6de7dacbcc000082e39b
-  simplecov-sorbet (0.1.0)
+  simplecov-sorbet (0.2.0)
   sorbet (0.6.13367) sha256=099d9f5f420e09606deb84c9110f352e1caa970eabc01978c55dc6eb089858ce
   sorbet-runtime (0.6.13367) sha256=4891cafce050f32f0e03f593a63cfa2ed535e541633b75a035ed36fb1b067d42
   sorbet-static (0.6.13367-aarch64-linux) sha256=46416a8ed47e5c12d129a6f6418a98d2bb56d8ebeaea6d6a6a47306b4307acc5
