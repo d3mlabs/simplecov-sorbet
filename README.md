@@ -49,15 +49,14 @@ This repo is managed with d3mlabs' `dev` tool (`dev up`, `dev test`, `dev style`
 
 ## Releasing a New Version
 
-1. Update `VERSION` in `lib/simplecov/sorbet/version.rb`, run `bundle install` to regenerate `Gemfile.lock`, commit, open a PR, and merge to main
-2. Tag and push:
-   ```
-   git checkout main && git pull
-   git tag v0.1.0
-   git push origin v0.1.0
-   ```
+From a clean checkout of `main`:
 
-The [release workflow](.github/workflows/release.yml) validates that the tag matches `version.rb`, builds the gem, and publishes it to [rubygems.org](https://rubygems.org) via [Trusted Publishing](https://guides.rubygems.org/trusted-publishing/).
+```
+dev release          # auto-increments the patch version (0.1.0 → 0.1.1)
+dev release 0.2.0    # explicit version
+```
+
+The script ([bin/release.rb](bin/release.rb)) bumps `lib/simplecov/sorbet/version.rb` and `Gemfile.lock`, commits, tags `v<version>`, pushes, creates the GitHub release, and then watches the [release workflow](.github/workflows/release.yml) — which validates that the tag matches `version.rb`, builds the gem, and publishes it to [rubygems.org](https://rubygems.org) via [Trusted Publishing](https://guides.rubygems.org/trusted-publishing/) — until the publish succeeds.
 
 ## License
 

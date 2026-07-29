@@ -12,3 +12,6 @@ commands:
   typecheck:
     desc: Run Sorbet
     run: bundle exec srb tc
+  release:
+    desc: Release a new version (bump, tag, push; CI publishes to rubygems.org)
+    run: ./bin/release.rb

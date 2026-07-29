@@ -1,11 +1,19 @@
 inherit_gem:
   rubocop-shopify: rubocop.yml
 
+inherit_mode:
+  merge:
+    - Exclude
+
 plugins:
   - rubocop-sorbet
 
 AllCops:
   SuggestExtensions: false
+  Exclude:
+    # Polyglot sh/ruby bootstrap scripts (#!/bin/sh preamble re-execing via
+    # `ruby -x`); not parseable as plain Ruby.
+    - bin/**/*
 
 # Tests are written in the RSpock dialect: bare comparisons in Then/Expect
 # blocks and block-name constants (Given/When/Then/Where/Cleanup) are
