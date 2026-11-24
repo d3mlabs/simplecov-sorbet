@@ -5,11 +5,10 @@
 # on every PR. GH_TOKEN is the credential the action's toolchain check
 # requires; the job's own token reaches every pin this public tap serves.
 #
-# `compat` is the one job outside dev, and a stopgap: a published gem
-# supporting every Ruby >= 3.3 (the gemspec) owes a suite run on each,
-# and dev runs a project under its one locked Ruby only. Until dev can
-# run `dev test` under a declared compat Ruby (dev#684), the two the lock
-# does not cover run through setup-ruby + bundler; 4.0 is `test`.
+# `compat` is the same suite under a Ruby the gemspec promises (>= 3.3)
+# but the lock does not cover: `dev compat <minor>`, a project command
+# (bin/compat.sh) that installs Homebrew's ruby@<minor> and bundles beside
+# the checkout. 4.0 is `test`, the locked Ruby.
 name: CI
 
 on:
@@ -57,8 +56,5 @@ jobs:
         ruby: ['3.3', '3.4']
     steps:
       - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-      - run: bundle exec rake test
+      - uses: d3mlabs/dev/up@main
+      - run: dev compat ${{ matrix.ruby }}

@@ -12,6 +12,9 @@ commands:
   typecheck:
     desc: Run Sorbet
     run: bundle exec srb tc
+  compat:
+    desc: Run the suite under a Ruby the gemspec promises but the lock does not cover (Homebrew ruby@<minor>)
+    run: ./bin/compat.sh
   release:
     desc: Release a new version (bump, tag, push; CI publishes to rubygems.org)
     run: ./bin/release.rb

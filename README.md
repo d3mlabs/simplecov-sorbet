@@ -62,7 +62,7 @@ Skips apply through SimpleCov's directive machinery, which drives its line class
 
 ## Development
 
-This repo is managed with d3mlabs' `dev` tool (`dev up`, `dev test`, `dev style`, `dev typecheck`), but plain Bundler works without it: `bundle install`, then `bundle exec rake test`. The Ruby version is declared in `dependencies.rb` and mirrored in `.ruby-version`.
+This repo is managed with d3mlabs' `dev` tool (`dev up`, `dev test`, `dev style`, `dev typecheck`; `dev compat 3.3` runs the suite under an older supported Ruby via Homebrew's `ruby@3.3`), but plain Bundler works without it: `bundle install`, then `bundle exec rake test`. The Ruby version is declared in `dependencies.rb` and mirrored in `.ruby-version`.
 
 ## Releasing a New Version
 
