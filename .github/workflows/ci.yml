@@ -6,8 +6,8 @@
 # requires; the job's own token reaches every pin this public tap serves.
 #
 # `compat` is the same suite under a Ruby the gemspec promises (>= 3.3)
-# but the lock does not cover: `dev compat <minor>`, a project command
-# (bin/compat.sh) that installs Homebrew's ruby@<minor> and bundles beside
+# but the lock does not cover: `dev test-ruby <minor>`, a project command
+# (bin/test-ruby.sh) that installs Homebrew's ruby@<minor> and bundles beside
 # the checkout. 4.0 is `test`, the locked Ruby.
 name: CI
 
@@ -57,4 +57,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: d3mlabs/dev/up@main
-      - run: dev compat ${{ matrix.ruby }}
+      - run: dev test-ruby ${{ matrix.ruby }}

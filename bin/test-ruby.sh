@@ -1,5 +1,5 @@
 #!/bin/sh
-# dev compat <minor>: run the suite under a Ruby the gemspec promises
+# dev test-ruby <minor>: run the suite under a Ruby the gemspec promises
 # (>= 3.3) but dependencies.rb does not lock. `dev test` is the suite on
 # the project Ruby; this answers the other question — does the gem still
 # work on the older Rubies it supports.
@@ -16,10 +16,10 @@
 # PATH.
 set -eu
 
-minor="${1:?usage: dev compat <minor>   (e.g. dev compat 3.3)}"
+minor="${1:?usage: dev test-ruby <minor>   (e.g. dev test-ruby 3.3)}"
 formula="ruby@$minor"
 root="$(cd "$(dirname "$0")/.." && pwd)"
-workdir="${XDG_CACHE_HOME:-$HOME/.cache}/simplecov-sorbet/compat/$minor"
+workdir="${XDG_CACHE_HOME:-$HOME/.cache}/simplecov-sorbet/test-ruby/$minor"
 
 brew list --versions "$formula" >/dev/null 2>&1 || brew install "$formula"
 ruby="$(brew --prefix "$formula")/bin/ruby"
@@ -30,6 +30,6 @@ printf '# frozen_string_literal: true\n\neval_gemfile "%s/Gemfile"\n' "$root" > 
 export BUNDLE_GEMFILE="$workdir/Gemfile"
 export BUNDLE_PATH="$workdir/vendor"
 
-echo "compat: $("$ruby" -v)"
+echo "test-ruby: $("$ruby" -v)"
 "$ruby" -S bundle install --quiet
 cd "$root" && exec "$ruby" -S bundle exec rake test
