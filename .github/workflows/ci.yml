@@ -1,3 +1,14 @@
+# CI runs what a developer runs: `dev up`, then the check verbs dev.yml
+# defines — `dev style`, `dev typecheck`, `dev test` — under the Ruby
+# dependencies.rb locks. Nothing in those jobs invokes the toolchain
+# directly, so the first dev command's manifest/lock staleness guard runs
+# on every PR. GH_TOKEN is the credential the action's toolchain check
+# requires; the job's own token reaches every pin this public tap serves.
+#
+# `compat` is the one job outside dev: a published gem supporting every
+# Ruby >= 3.3 (the gemspec) runs its suite on the Rubies it does not lock,
+# through setup-ruby. The gate is `test`; `compat` answers a different
+# question — does the gem still work on the older Rubies it promises.
 name: CI
 
 on:
@@ -6,33 +17,43 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '4.0'
-          bundler-cache: true
-      - run: bundle exec rubocop
+      - uses: d3mlabs/dev/up@main
+      - run: dev style
 
   typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '4.0'
-          bundler-cache: true
-      - run: bundle exec srb tc
+      - uses: d3mlabs/dev/up@main
+      - run: dev typecheck
 
   test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: d3mlabs/dev/up@main
+      - run: dev test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/coverage.json
+          fail_ci_if_error: false
+
+  compat:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        ruby: ['3.3', '3.4', '4.0']
+        ruby: ['3.3', '3.4']
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -40,10 +61,3 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - run: bundle exec rake test
-      - name: Upload coverage to Codecov
-        if: matrix.ruby == '3.3'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/coverage.json
-          fail_ci_if_error: false
