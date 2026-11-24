@@ -5,10 +5,11 @@
 # on every PR. GH_TOKEN is the credential the action's toolchain check
 # requires; the job's own token reaches every pin this public tap serves.
 #
-# `compat` is the one job outside dev: a published gem supporting every
-# Ruby >= 3.3 (the gemspec) runs its suite on the Rubies it does not lock,
-# through setup-ruby. The gate is `test`; `compat` answers a different
-# question — does the gem still work on the older Rubies it promises.
+# `compat` is the one job outside dev, and a stopgap: a published gem
+# supporting every Ruby >= 3.3 (the gemspec) owes a suite run on each,
+# and dev runs a project under its one locked Ruby only. Until dev can
+# run `dev test` under a declared compat Ruby (dev#684), the two the lock
+# does not cover run through setup-ruby + bundler; 4.0 is `test`.
 name: CI
 
 on:
